@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+	<Resource id="goDatasource" type="DataSource">
+		JdbcDriver com.mysql.jdbc.Driver
+		JdbcUrl jdbc:mysql://92.247.62.146:3306/go?useSSL=false
+		UserName ngvatev
+		Password some_pass
+	</Resource>
+</resources> 

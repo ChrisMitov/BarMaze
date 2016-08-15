@@ -1,0 +1,51 @@
+.well {
+	width: 300px;
+	height: auto;
+	background: rgb(22, 105, 173);
+}
+
+.well3 {
+	width: 600px;
+	background: rgb(22, 105, 173);
+}
+
+table, th, td {
+	border: 1px solid black;
+}
+
+table {
+	border-spacing: 0;
+	width: 100%;
+}
+
+thead {
+	font-size: 18pt;
+	font-weight: bold;
+	color: red;
+}
+
+tbody {
+	font-style: italic;
+	color: black;
+}
+
+th, td {
+	text-align: center;
+}
+
+#fixedbutton {
+	position: fixed;
+	bottom: 0px;
+	right: 0px;
+}
+
+.centerdiv {
+	text-align: center;
+	margin: 20 auto;
+	padding-top: 5px;
+}
+
+.spanwidth {
+	width: 10%;
+	font-size: 1.5em;
+}

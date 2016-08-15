@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Login - BarMazeto</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<link
+	href="http://netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css"
+	rel="stylesheet"></link>
+<link href="css/style.css" rel="stylesheet"></link>
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">BarMazeto</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li class="active"><a href="#">Login</a></li>
+				<li><a href="register.html">Register</a></li>
+			</ul>
+		</div>
+	</nav>
+	<div ng-app="myApp" ng-controller="myCtrl">
+		<div class="row ">
+			<div class="col-md-4 " style="padding-top: 140px;">
+				<div class="col-md-2 "></div>
+				<div class="col-md-7 well center-block">
+					<div class="centerdiv">
+						<span class="label label-danger spanwidth ">Login</span>
+					</div>
+					<br />
+					<div class="for-group has-feedback centerdiv">
+						<label class="control-label label label-success labelwidth">Name:</label>
+						<input type="text" class="form-control" placeholder="Enter username"
+							ng-model="user.username" /></input> <i
+							class="glyphicon glyphicon-pencil form-control-feedback "></i>
+					</div>
+					<br />
+					<div class="form-group has-feedback centerdiv">
+						<label class="control-label label label-success labelwidth">Password:</label>
+						<input type="password" class="form-control"
+							placeholder="Enter password" ng-model="user.password" /></input> <i
+							class="glyphicon glyphicon-lock form-control-feedback"></i> <span
+							class="label label-danger">{{errorUser}}</span>
+					</div>
+					<br />
+					<div class="centerdiv">
+						<button type="button" class="btn btn-success"
+							ng-click="login(user)">
+							<span class="glyphicon glyphicon-import"></span> Login
+						</button>
+					</div>
+					<div>
+						<a href="register.html" class="btn btn-danger">Register</a>
+					</div>
+				</div>
+				<div class="col-md-1"></div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var app = angular.module('myApp', []);
+	app.controller('myCtrl', function($scope, $http, $window) {
+		$scope.errorUser;
+		$scope.login = function(user) {
+			if (user.username == "" || user.password == "") {
+				$scope.errorUser = "Username and password should not be empty.";
+				return;
+			}
+			$scope.errorUser = "";
+			$http({
+				method : 'post',
+				url : "rest/login",
+				data : user,
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			}).then(function(response) {
+				$window.location.href = "http://localhost:8080/go/index.html";
+			}, function(response) {
+				$scope.errorUser = "Incorrect username or password";
+			});
+		};
+	});
+</script>
+</html>

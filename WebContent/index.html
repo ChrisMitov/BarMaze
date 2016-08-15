@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Products - BarMazeto</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<link
+	href="http://netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css"
+	rel="stylesheet"></link>
+<link href="css/style.css" rel="stylesheet"></link>
+</head>
+<body>
+	<div ng-app="myApp" ng-controller="myCtrl" class="container"
+		data-ng-init="authenticate()" ng-show="isAuthenticated">
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container-fluid">
+				<div class="navbar-header">
+					<a class="navbar-brand" href="#">BarMazeto</a>
+				</div>
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="index.html">Home</a></li>
+					<li><a href="order.html">Orders</a></li>
+					<li><a href="statistics.html">Statistics</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<li style="color: red"><br>Welcome, {{user}} !</li>
+					<li><a href="" ng-click="logout()">Sign out</a></li>
+				</ul>
+			</div>
+		</nav>
+		<br>
+
+		<div style="text-align: center; margin: 0 auto; padding-top: 60px;">
+			<button type="button" class="btn btn-info btn btn-lg"
+				ng-click="getDocs()">Get products</button>
+			<button type="button" class="btn btn-warning btn btn-lg"
+				ng-click="getOrder()">Order</button>
+		</div>
+		<br>
+		<div ng-show="products != null">
+			<table>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Price</th>
+						<th>Type</th>
+						<th ng-hide="order">Options</th>
+						<th ng-show="order">Quantity</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr ng-repeat="product in products">
+						<td>{{product.name}}</td>
+						<td>{{product.price}}</td>
+						<td>{{product.type}}</td>
+						<td ng-hide="order"><button type="button"
+								class="btn btn-danger btn" ng-click="delete(product)">Delete</button></td>
+						<td ng-show="order"><input type="number" class="form-control"
+							placeholder="Enter quantity" ng-model="product.quantity" /></input></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		<br> <br> <br>
+		<div class="centerdiv">
+			<button type="button" class="btn btn-danger btn btn-lg"
+				ng-click="makeOrder()" ng-show="order">Make order</button>
+		</div>
+		<div id="fixedbutton">
+			<button type="button" class="btn btn-danger btn btn-lg"
+				ng-click="getProductType()" data-toggle="modal"
+				data-target="#myModal">
+				<span class="glyphicon glyphicon-plus"></span>
+			</button>
+		</div>
+		<div class="modal" id="myModal" role="dialog">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header well3">
+						<button type="button" class="close" data-dismiss="modal">&times;</button>
+						<h4 style="color: white">
+							<span class="glyphicon glyphicon-lock"></span> Add product
+						</h4>
+					</div>
+					<div class="modal-body" style="padding: 40px 50px;">
+						<form role="form">
+							<div class="form-group centerdiv">
+								<label for="usrname"><span
+									class="glyphicon glyphicon-user"></span> Name: </label> <input
+									type="text" class="form-control" id="usrname"
+									ng-model="product.name">
+							</div>
+							<div class="form-group centerdiv">
+								<label for="date"><span class="glyphicon glyphicon-euro"></span>
+									Price:</label> <input type="number" class="form-control" id="number"
+									ng-model="product.price">
+							</div>
+							<div class=" form-group has-feedback centerdiv">
+								<label for="date"><span class="glyphicon glyphicon-tint"></span>
+									Choose Type:</label> <select id="mySel" class="form-control"
+									ng-change="setType(type)" ng-model="type">
+									<option ng-repeat="type in types">{{type}}</option>
+								</select>
+							</div>
+							<button type="submit" ng-click="add(product)"
+								class="btn btn-success" data-toggle="modal" data-dismiss="modal">
+								<span class="glyphicon glyphicon-ok"></span> Add
+							</button>
+						</form>
+					</div>
+					<div class="modal-footer well3">
+						<button type="submit" class="btn btn-danger btn-default pull-left"
+							data-toggle="modal" data-dismiss="modal">
+							<span class="glyphicon glyphicon-remove"></span> Cancel
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+</body>
+<script type="text/javascript">
+	var app = angular.module('myApp', []);
+	app.controller('myCtrl', function($scope, $http, $window) {
+		$scope.isAuthenticated = false;
+		$scope.user;
+		$scope.authenticate = function(){
+			$http({
+				method : 'GET',
+				url : "rest/login/authenticated",
+			}).success(function(data) {
+				$scope.isAuthenticated = true;
+				$http.get("rest/login/current").then(function(response) {
+					$scope.user = response.data;
+				})
+			}).error(function(status, statusText) {
+				$window.location.href = "http://localhost:8080/go/login.html";
+			})
+		}
+		
+		$scope.order = false;
+		$scope.products;
+		$scope.getDocs = function() {
+			if($scope.order){
+				$scope.order = !$scope.order;
+			}
+			$scope.get();
+
+		};
+		$scope.get = function(){
+			$http.get("rest/product").then(function(response) {
+				$scope.products = response.data;
+			})
+		}
+		
+		$scope.getOrder = function() {
+			if(!$scope.order){
+				$scope.order = !$scope.order;
+				$scope.get();
+			}else{
+				$scope.get();
+			}
+		}
+		
+		$scope.types;
+		$scope.getProductType = function(){
+			$http.get("rest/product/type").then(function(response){
+				$scope.types = response.data;
+			});
+		}
+		$scope.type;
+		$scope.setType = function(type){
+			$scope.type = type;
+		}
+		$scope.add = function(product) {
+			console.log($scope.type);
+			product.type = $scope.type;
+			$http({
+				method : 'POST',
+				url : "rest/product",
+				data : product,
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			}).success(function(data) {
+				$scope.get();
+				$scope.product.name = "";
+				$scope.product.price = "";
+				$scope.product.type = "";
+			}).error(function(status, statusText) {
+				alert(statusText);
+			})
+		};
+		$scope.delete = function(product) {
+			$http.delete("rest/product/" + product.idProduct).then(function(response) {
+				$scope.getDocs();
+			});
+		}
+		$scope.orders = [];
+		$scope.makeOrder = function(){
+			$scope.orders = [];
+			for( var i = 0; i < $scope.products.length; i++){
+				if($scope.products[i].quantity > 0){
+					var object = {
+							"product": $scope.products[i],
+							"quantity": $scope.products[i].quantity
+					}
+					$scope.orders.push(object);
+					console.log($scope.products[i].name + " : " + $scope.products[i].quantity)
+				}
+			}
+			$http.post("rest/order/make", $scope.orders).then(function (response) {
+				$window.location.href = "http://localhost:8080/go/order.html";
+			});
+			console.log($scope.orders);
+		}
+		
+		$scope.logout = function(){
+			console.log("HERE");
+			$http.get("rest/logout").then(function(response){
+				$window.location.href = "http://localhost:8080/go/login.html";
+			});
+		}
+	});
+</script>
+</html>

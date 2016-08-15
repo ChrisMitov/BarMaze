@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Register - BarMazeto</title>
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script
+	src="http://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+<script
+	src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link rel="stylesheet"
+	href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"></link>
+<link
+	href="http://netdna.bootstrapcdn.com/font-awesome/2.0/css/font-awesome.css"
+	rel="stylesheet"></link>
+<link href="css/style.css" rel="stylesheet"></link>
+</head>
+<body>
+	<nav class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">BarMazeto</a>
+			</div>
+			<ul class="nav navbar-nav">
+				<li><a href="login.html">Login</a></li>
+				<li class="active"><a href="#">Register</a></li>
+			</ul>
+		</div>
+	</nav>
+	<div ng-app="myApp" ng-controller="myCtrl" data-ng-init="getRoles()">
+		<div class="row ">
+			<div class="col-md-4 " style="padding-top: 140px;">
+				<div class="col-md-2 "></div>
+				<div class="col-md-7 well center-block">
+					<div class="centerdiv">
+						<span class="label label-danger spanwidth ">Register</span>
+					</div>
+					<br />
+					<div class="for-group has-feedback centerdiv">
+						<label class="control-label label label-success labelwidth">Name:</label>
+						<input type="text" class="form-control" placeholder="Enter name"
+							ng-model="user.username" /></input> <i
+							class="glyphicon glyphicon-pencil form-control-feedback "></i>
+					</div>
+					<br />
+					<div class="form-group has-feedback centerdiv">
+						<label class="control-label label label-success labelwidth">Password:</label>
+						<input type="password" class="form-control"
+							placeholder="Enter password" ng-model="user.password" /></input> <i
+							class="glyphicon glyphicon-lock form-control-feedback"></i> <span
+							class="label label-danger">{{errorUser}}</span>
+					</div>
+					<div class=" form-group has-feedback centerdiv">
+						<select id="mySel" class="form-control" ng-change="setRole(role)" ng-model="role">
+							<option ng-repeat="role in roles">{{role}}</option>
+						</select>
+					</div>
+					<br />
+					<div class="centerdiv">
+						<button type="button" class="btn btn-success"
+							ng-click="register(user)">
+							<span class="glyphicon glyphicon-import"></span>Register
+						</button>
+					</div>
+					<div>
+						<a href="login.html" class="btn btn-danger">Login</a>
+					</div>
+				</div>
+				<div class="col-md-1"></div>
+			</div>
+		</div>
+	</div>
+</body>
+<script type="text/javascript">
+	var app = angular.module('myApp', []);
+	app.controller('myCtrl', function($scope, $http, $window) {
+		$scope.roles;
+		$scope.getRoles = function(){
+			$http.get("rest/register").then(function(response){
+				$scope.roles = response.data;
+			})
+		};
+		$scope.role;
+		$scope.setRole = function(role){
+			$scope.role = role;
+		}
+		$scope.errorUser;
+		$scope.register = function(user) {
+			if (user.username == "" || user.password == "") {
+				$scope.errorUser = "Username and password should not be empty.";
+				return;
+			}
+			user.role = $scope.role;
+			console.log(user);
+			$scope.errorUser = "";
+			$http({
+				method : 'post',
+				url : "rest/register",
+				data : user,
+				headers : {
+					'Content-Type' : 'application/json'
+				}
+			}).then(function(response) {
+				$window.location.href = "http://localhost:8080/go/login.html";
+			}, function(response) {
+				$scope.errorUser = "Incorrect username or password";
+			});
+		};
+	});
+</script>
+</html>
